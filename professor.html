@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lista de Presença - Professor</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <h2>Lista de Presença</h2>
+    <table border="1" width="100%">
+      <thead>
+        <tr>
+          <th>Nome</th>
+          <th>Data/Hora</th>
+          <th>Latitude</th>
+          <th>Longitude</th>
+        </tr>
+      </thead>
+      <tbody id="tabela"></tbody>
+    </table>
+    <button onclick="baixarCSV()">Baixar CSV</button>
+  </div>
+
+  <script>
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz0K-z6C-5MOPN54YgdVmOvbyhponwRvwugU39qbM48rfIWKaj1bk7B8NtVSWIculY/exec";
+
+    function carregarPresencas() {
+      fetch(SCRIPT_URL)
+        .then(res => res.json())
+        .then(data => {
+          let html = "";
+          for (let i = 1; i < data.length; i++) { // pula cabeçalho
+            html += `<tr>
+              <td>${data[i][0]}</td>
+              <td>${data[i][1]}</td>
+              <td>${data[i][2]}</td>
+              <td>${data[i][3]}</td>
+            </tr>`;
+          }
+          document.getElementById("tabela").innerHTML = html;
+        });
+    }
+
+    function baixarCSV() {
+      fetch(SCRIPT_URL)
+        .then(res => res.json())
+        .then(data => {
+          let csv = data.map(row => row.join(",")).join("\n");
+          let blob = new Blob([csv], { type: "text/csv" });
+          let link = document.createElement("a");
+          link.href = URL.createObjectURL(blob);
+          link.download = "presencas.csv";
+          link.click();
+        });
+    }
+
+    carregarPresencas();
+  </script>
+</body>
+</html>
